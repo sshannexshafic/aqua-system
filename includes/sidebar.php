@@ -45,8 +45,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </a>
         </div>
         <div class="system-info">
-            <small><?php echo DatabaseConfig::$SYSTEM_NAME; ?></small><br>
-            <small>Busolwe, Butaleja</small>
+        
+        
         </div>
     </div>
 </aside>

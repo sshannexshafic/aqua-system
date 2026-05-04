@@ -2,7 +2,7 @@
 </main>
 <script src="../assets/js/main.js"></script>
 <footer class="footer">
-    <p>&copy; 2026 Mugwe Fish Pond, Busolwe, Butaleja District, Uganda</p>
+    <p> AquacultureManagementSystem&copy;2026</p>
 </footer>
     
     <?php if (isLoggedIn()): ?>

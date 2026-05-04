@@ -23,7 +23,7 @@ if ($_POST && isset($_POST['verify_otp'])) {
     <div class="login-container">
         <div class="login-card">
             <h2>Enter Verification Code</h2>
-            <p>Check your phone for the 6-digit code</p>
+            <p>Check your Email for the 6-digit code</p>
 
             <?php if ($error): ?><div class="error"><?php echo $error; ?></div><?php endif; ?>
 
