@@ -42,7 +42,7 @@ if ($_POST) {
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <img src="../assets/images/logo.png" alt="Logo" class="login-logo">
+                <img src="../assets/images/logo1.png.png" alt="Logo" class="login-logo">
                 <h2>Welcome Back</h2>
                 <p>Sign in to your dashboard</p>
             </div>

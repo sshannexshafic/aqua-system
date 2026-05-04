@@ -110,9 +110,9 @@ $water_summary = $db->query("
     <div class="card">
         <h3>Generate Reports</h3>
         <div class="button-group">
-            <a href="reports/pond_report.php" class="btn-secondary">📊 Pond Report</a>
-            <a href="reports/financial_summary.php" class="btn-secondary">💰 Financial Report</a>
-            <a href="reports/water_quality.php" class="btn-secondary">💧 Water Quality</a>
+            <a href="../reports/pond_report.php" class="btn-secondary">📊 Pond Report</a>
+            <a href="../reports/financial_summary.php" class="btn-secondary">💰 Financial Report</a>
+            <a href="../reports/water_quality.php" class="btn-secondary">💧 Water Quality</a>
         </div>
     </div>
 </div>
