@@ -59,7 +59,7 @@ $users = $db->query("SELECT * FROM users ORDER BY role, created_at DESC")->fetch
             
             <select name="role" required>
                 <option value="">Select Role</option>
-                <option value="farmer">Farmer/Manager</option>
+                <option value="farmer">Farmer</option>
                 <option value="vet">Veterinarian</option>
             </select>
             

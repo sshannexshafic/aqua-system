@@ -1,4 +1,3 @@
-cat > /home/claude/aquaculturesystem_final/vet/dashboard.php << 'PHPEOF'
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/db_connection.php';
@@ -8,11 +7,13 @@ $database = new Database();
 $db = $database->getConnection();
 $vet_id = $_SESSION['user_id'];
 
-// Stats
+// Stats (Now using 'status' column)
 $total_ponds      = $db->query("SELECT COUNT(*) as c FROM ponds WHERE status='active'")->fetch()['c'];
 $open_cases       = $db->query("SELECT COUNT(*) as c FROM health_records WHERE status='open'")->fetch()['c'];
 $pending_recs     = $db->query("SELECT COUNT(*) as c FROM vet_recommendations WHERE status='pending'")->fetch()['c'];
-$deaths_this_month= $db->query("SELECT COALESCE(SUM(count),0) as c FROM mortality_records WHERE MONTH(mortality_date)=MONTH(CURDATE()) AND YEAR(mortality_date)=YEAR(CURDATE())")->fetch()['c'];
+$deaths_this_month= $db->query("SELECT COALESCE(SUM(count),0) as c FROM mortality_records 
+                                 WHERE MONTH(mortality_date)=MONTH(CURDATE()) 
+                                 AND YEAR(mortality_date)=YEAR(CURDATE())")->fetch()['c'];
 
 // Recent health records
 $recent_health = $db->query("
@@ -135,7 +136,7 @@ $alerts = $db->query("
         <a href="health_records.php" class="btn-primary">🏥 Health Records</a>
         <a href="mortality.php" class="btn-danger">💀 Mortality Records</a>
         <a href="recommendations.php" class="btn-secondary">📋 Recommendations</a>
+        <a href="../admin/ponds.php" class="btn-secondary">🏞️ View Ponds</a>
     </div>
 </div>
 <?php include '../includes/footer.php'; ?>
-PHPEOF

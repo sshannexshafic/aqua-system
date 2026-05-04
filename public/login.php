@@ -1,10 +1,14 @@
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
+require_once '../config/database.php';
 
 // Redirect if already logged in
 if (isLoggedIn()) {
-    header("Location: " . ($_SESSION['role'] == 'admin' ? '../admin/dashboard.php' : '../farmer/dashboard.php'));
+    $role = $_SESSION['role'];
+    if ($role === 'admin') header("Location: ../admin/dashboard.php");
+    elseif ($role === 'vet') header("Location: ../vet/dashboard.php");
+    else header("Location: ../farmer/dashboard.php");
     exit();
 }
 
@@ -14,17 +18,17 @@ if ($_POST) {
     $password = $_POST['password'];
     
     if (login($username, $password)) {
-        // Log successful login
-        require_once '../config/database.php';
-        DatabaseConfig::logActivity($_SESSION['user_id'], 'LOGIN_SUCCESS', $_SERVER['REMOTE_ADDR']);
+        // Log successful login (non-fatal — don't let logging break login)
+        try { DatabaseConfig::logActivity($_SESSION['user_id'], 'LOGIN_SUCCESS', $_SERVER['REMOTE_ADDR']); } catch (Exception $e) {}
         
         $role = $_SESSION['role'];
-        header("Location: " . ($role == 'admin' ? '../admin/dashboard.php' : '../farmer/dashboard.php'));
+        if ($role === 'admin') header("Location: ../admin/dashboard.php");
+        elseif ($role === 'vet') header("Location: ../vet/dashboard.php");
+        else header("Location: ../farmer/dashboard.php");
         exit();
     } else {
         $error = 'Invalid username or password!';
-        require_once '../config/database.php';
-        DatabaseConfig::logActivity(0, 'LOGIN_FAILED', $username . ' - ' . $_SERVER['REMOTE_ADDR']);
+        try { DatabaseConfig::logActivity(0, 'LOGIN_FAILED', $username . ' - ' . $_SERVER['REMOTE_ADDR']); } catch (Exception $e) {}
     }
 }
 ?>
@@ -62,6 +66,9 @@ if ($_POST) {
             <div class="login-links">
                 <a href="forgot_password.php">Forgot Password?</a>
                 <a href="register.php">Create Account</a>
+            </div>
+            <div style="text-align:center;margin-top:1rem;">
+                <a href="index.php" style="color:#9ca3af;font-size:0.85rem;text-decoration:none;">← Back to Home</a>
             </div>
         </div>
     </div>

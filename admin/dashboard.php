@@ -1,4 +1,3 @@
-cat > /home/claude/aquaculturesystem_final/admin/dashboard.php << 'PHPEOF'
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/db_connection.php';
@@ -140,4 +139,3 @@ $monthly_rev = $db->query("
     </div>
 </div>
 <?php include '../includes/footer.php'; ?>
-PHPEOF

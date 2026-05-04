@@ -1,123 +1,145 @@
 <?php
+// FIXED - No duplicate session_start()
+require_once '../includes/auth.php';     // This safely starts the session
+
+require_once '../config/database.php';
+require '../vendor/autoload.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require_once '../includes/functions.php';
-require_once '../config/database.php';
-require '../PHPMailer/src/PHPMailer.php';
-require '../PHPMailer/src/SMTP.php';
-require '../PHPMailer/src/Exception.php';
-
 $step = $_GET['step'] ?? 'request';
-$token = $_GET['token'] ?? '';
-$email = $_POST['email'] ?? '';
 $error = '';
 $success = '';
 
-// Step 1: Request token
-if ($_POST && $step == 'request') {
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Please enter a valid email address';
-    } else {
-        $pdo = DatabaseConfig::getConnection();
-        $stmt = $pdo->prepare("SELECT id, username FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
-        
-        if ($user) {
-            $token = sprintf("%06d", mt_rand(0, 999999));
-            $expires = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-            
-            $stmt = $pdo->prepare("
-                INSERT INTO password_reset_tokens (email, token, expires_at, used) 
-                VALUES (?, ?, ?, 0) 
-                ON DUPLICATE KEY UPDATE token = ?, expires_at = ?
-            ");
-            $stmt->execute([$email, $token, $expires, $token, $expires]);
-            
-            $subject = "Mugwe Fish Pond - Password Reset Code";
-            $message = "
-                <h2>Password Reset Request</h2>
-                <p>Hello {$user['username']},</p>
-                <p>Your password reset code is:</p>
-                <div style='font-size: 3rem; font-weight: bold; color: #10b981; text-align: center; padding: 2rem; background: #f0fdf4; border-radius: 12px; letter-spacing: 0.5rem;'>$token</div>
-                <p>This code expires in <strong>15 minutes</strong>.</p>
-                <p>If you didn't request this, ignore this email.</p>
-                <hr>
-                <small>Mugwe Fish Pond AMS - Busolwe, Butaleja</small>
-            ";
-            
-            if (sendEmail($email, $subject, $message)) {
-                $success = 'Reset code sent to your email! Check your inbox (and spam).';
-                $_SESSION['reset_email'] = $email;
-                $step = 'verify'; // move user to next step
-            } else {
-                $error = 'Failed to send email. Try again or contact admin.';
-            }
+/*
+|--------------------------------------------------------------------------
+| HANDLE FORM SUBMISSIONS
+|--------------------------------------------------------------------------
+*/
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $pdo = DatabaseConfig::getConnection();
+
+    // STEP 1: Request Reset Code
+    if ($step === 'request') {
+        $email = trim($_POST['email'] ?? '');
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = "Please enter a valid email address";
         } else {
-            $error = 'Email not found in our records.';
+            $stmt = $pdo->prepare("SELECT id, username FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+
+            if ($user) {
+                $token = random_int(100000, 999999);
+                $expires = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+
+                $stmt = $pdo->prepare("
+                    INSERT INTO password_reset_tokens (email, token, expires_at, used)
+                    VALUES (?, ?, ?, 0)
+                    ON DUPLICATE KEY UPDATE token=?, expires_at=?, used=0
+                ");
+                $stmt->execute([$email, $token, $expires, $token, $expires]);
+
+                if (sendEmail($email, $user['username'], $token)) {
+                    $_SESSION['reset_email'] = $email;
+                    $step = 'verify';
+                    $success = "A reset code has been sent to your email.";
+                } else {
+                    $error = "Failed to send email. Please try again later.";
+                }
+            } else {
+                $error = "No account found with this email.";
+            }
+        }
+    }
+
+    // STEP 2: Verify Code
+    elseif ($step === 'verify') {
+        $token = trim($_POST['token'] ?? '');
+
+        if (!isset($_SESSION['reset_email'])) {
+            $error = "Session expired. Please start over.";
+            $step = 'request';
+        } else {
+            $stmt = $pdo->prepare("
+                SELECT email FROM password_reset_tokens 
+                WHERE email = ? AND token = ? AND expires_at > NOW() AND used = 0
+            ");
+            $stmt->execute([$_SESSION['reset_email'], $token]);
+            $row = $stmt->fetch();
+
+            if ($row) {
+                $_SESSION['reset_token'] = $token;
+                $step = 'reset';
+                $success = "Code verified successfully. Please set your new password.";
+            } else {
+                $error = "Invalid or expired code. Please try again.";
+            }
+        }
+    }
+
+    // STEP 3: Reset Password
+    elseif ($step === 'reset') {
+        if (!isset($_SESSION['reset_email'])) {
+            $error = "Session expired. Please start over.";
+            $step = 'request';
+        } else {
+            $password = $_POST['password'] ?? '';
+            $confirm  = $_POST['confirm_password'] ?? '';
+
+            if (strlen($password) < 6) {
+                $error = "Password must be at least 6 characters.";
+            } elseif ($password !== $confirm) {
+                $error = "Passwords do not match.";
+            } else {
+                $hashed = password_hash($password, PASSWORD_DEFAULT);
+
+                $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE email = ?");
+                $stmt->execute([$hashed, $_SESSION['reset_email']]);
+
+                $stmt = $pdo->prepare("UPDATE password_reset_tokens SET used = 1 WHERE email = ?");
+                $stmt->execute([$_SESSION['reset_email']]);
+
+                unset($_SESSION['reset_email'], $_SESSION['reset_token']);
+
+                $success = "✅ Password successfully reset!<br><br>
+                            <a href='login.php' class='btn-primary'>Click here to Login</a>";
+                $step = 'request';
+            }
         }
     }
 }
 
-// Step 2: Verify token
-if ($_POST && $step == 'verify') {
-    $token = $_POST['token'];
-    $pdo = DatabaseConfig::getConnection();
-    
-    $stmt = $pdo->prepare("
-        SELECT email FROM password_reset_tokens 
-        WHERE token = ? AND expires_at > NOW() AND used = 0
-    ");
-    $stmt->execute([$token]);
-    $reset = $stmt->fetch();
-    
-    if ($reset) {
-        $_SESSION['reset_token'] = $token;
-        $_SESSION['reset_email'] = $reset['email'];
-        $step = 'reset';
-    } else {
-        $error = 'Invalid or expired token!';
-    }
-}
-
-// Step 3: Reset password
-if ($_POST && $step == 'reset') {
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $pdo = DatabaseConfig::getConnection();
-    
-    $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE email = ?");
-    if ($stmt->execute([$password, $_SESSION['reset_email']])) {
-        
-        $stmt = $pdo->prepare("UPDATE password_reset_tokens SET used = 1 WHERE token = ?");
-        $stmt->execute([$_SESSION['reset_token']]);
-        
-        $success = 'Password reset successfully! You can now login.';
-        unset($_SESSION['reset_email'], $_SESSION['reset_token']);
-    } else {
-        $error = 'Failed to reset password.';
-    }
-}
-
-// ✅ REAL EMAIL FUNCTION USING PHPMailer
-function sendEmail($to, $subject, $message) {
+/*
+|--------------------------------------------------------------------------
+| EMAIL FUNCTION
+|--------------------------------------------------------------------------
+*/
+function sendEmail($to, $username, $token) {
     $mail = new PHPMailer(true);
-
     try {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
         $mail->Username   = 'ssewanyanashafic266@gmail.com';
-        $mail->Password   = 'yhkw focz vsvs bhpa'; // App password
-        $mail->SMTPSecure = 'tls';
+        $mail->Password   = 'bpce sfpo bhbf dpbh';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
         $mail->setFrom('ssewanyanashafic266@gmail.com', 'Mugwe Fish Pond');
         $mail->addAddress($to);
 
         $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body    = $message;
+        $mail->Subject = 'Password Reset Code';
+        $mail->Body    = "
+            <h2>Hello {$username},</h2>
+            <p>Your password reset code is:</p>
+            <h1 style='color:#3b82f6;'>{$token}</h1>
+            <p>This code expires in 15 minutes.</p>
+        ";
 
         return $mail->send();
     } catch (Exception $e) {
@@ -125,3 +147,60 @@ function sendEmail($to, $subject, $message) {
     }
 }
 ?>
+
+<?php include '../includes/header.php'; ?>
+
+<div class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <h2>Password Reset</h2>
+
+            <?php if ($error): ?>
+                <div class="error"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+                <div class="success"><?= $success ?></div>
+            <?php endif; ?>
+
+            <!-- Step 1: Request -->
+            <?php if ($step === 'request'): ?>
+                <form method="POST" action="?step=request">
+                    <div class="input-group">
+                        <input type="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <button type="submit" class="btn-primary full-width">Send Reset Code</button>
+                </form>
+            <?php endif; ?>
+
+            <!-- Step 2: Verify -->
+            <?php if ($step === 'verify'): ?>
+                <form method="POST" action="?step=verify">
+                    <div class="input-group">
+                        <input type="text" name="token" maxlength="6" placeholder="Enter 6-digit code" required style="text-align:center;font-size:1.5rem;">
+                    </div>
+                    <button type="submit" class="btn-primary full-width">Verify Code</button>
+                </form>
+            <?php endif; ?>
+
+            <!-- Step 3: Reset Password -->
+            <?php if ($step === 'reset'): ?>
+                <form method="POST" action="?step=reset">
+                    <div class="input-group">
+                        <input type="password" name="password" placeholder="New Password" required minlength="6">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" name="confirm_password" placeholder="Confirm Password" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary full-width">Reset Password</button>
+                </form>
+            <?php endif; ?>
+
+            <div style="text-align:center;margin-top:1rem;">
+                <a href="login.php">← Back to Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php include '../includes/footer.php'; ?>

@@ -1,4 +1,4 @@
-cat > /home/claude/aquaculturesystem_final/vet/mortality.php << 'PHPEOF'
+
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/db_connection.php';

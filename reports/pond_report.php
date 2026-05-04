@@ -116,9 +116,8 @@ if ($pond_id) {
     </div>
 </div>
 <?php include '../includes/footer.php'; ?>
-PHPEOF
 
-cat > /home/claude/aquaculturesystem_final/reports/pond_report.php << 'PHPEOF'
+
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/db_connection.php';
@@ -202,7 +201,6 @@ $status_colors = ['active'=>'#10b981','inactive'=>'#9ca3af','under_maintenance'=
 <?php include '../includes/footer.php'; ?>
 PHPEOF
 
-cat > /home/claude/aquaculturesystem_final/reports/water_quality.php << 'PHPEOF'
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/db_connection.php';

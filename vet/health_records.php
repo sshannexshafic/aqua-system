@@ -1,4 +1,4 @@
-cat > /home/claude/aquaculturesystem_final/vet/health_records.php << 'PHPEOF'
+
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/db_connection.php';
@@ -54,7 +54,7 @@ $records = $db->query("
 <div class="admin-page">
 
     <div class="page-header">
-        <span style="font-size:2.5rem;">🏥</span>
+        <span style="font-size:2.5rem;"></span>
         <h1>Health Records</h1>
     </div>
 
@@ -63,7 +63,7 @@ $records = $db->query("
 
     <!-- Add Record -->
     <div class="card">
-        <h3>➕ Add Health Record</h3>
+        <h3>Add Health Record</h3>
         <form method="POST" class="water-quality-form">
             <div class="form-grid">
                 <select name="pond_id" required>
@@ -103,7 +103,7 @@ $records = $db->query("
     <!-- Records Table -->
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
-            <h3 style="margin:0;">📋 All Health Records</h3>
+            <h3 style="margin:0;">All Health Records</h3>
             <input type="text" data-table-search="healthTable" placeholder="🔍 Search records..."
                 style="padding:.75rem 1rem;border:2px solid #e5e7eb;border-radius:10px;font-size:.95rem;width:250px;">
         </div>

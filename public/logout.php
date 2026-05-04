@@ -7,3 +7,5 @@ DatabaseConfig::logActivity($_SESSION['user_id'] ?? 0, 'LOGOUT', $_SERVER['REMOT
 
 logout();
 ?>
+
+

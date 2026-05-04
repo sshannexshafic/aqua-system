@@ -1,4 +1,3 @@
-cat > /home/claude/aquaculturesystem_final/reports/financial_summary.php << 'PHPEOF'
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/db_connection.php';
@@ -137,4 +136,3 @@ $by_pond = $db->query("
     </div>
 </div>
 <?php include '../includes/footer.php'; ?>
-PHPEOF

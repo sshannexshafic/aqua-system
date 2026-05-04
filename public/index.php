@@ -1,16 +1,9 @@
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/functions.php';
-require_once '../config/database.php';
+//require_once '../config/database.php';//
 
-// Redirect if already logged in
-if (isLoggedIn()) {
-    $role = $_SESSION['role'];
-    $redirect = $role == 'admin' ? '../admin/dashboard.php' : 
-                ($role == 'farmer' ? '../farmer/dashboard.php' : '../vet/dashboard.php');
-    header("Location: $redirect");
-    exit();
-}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
