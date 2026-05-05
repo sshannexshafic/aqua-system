@@ -31,6 +31,14 @@ $water_summary = $db->query("
     FROM water_quality 
     WHERE recorded_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
 ")->fetch();
+
+// Water Quality Trend (Last 7 days)
+$water_trend = $db->query("
+    SELECT recorded_at, ph_level 
+    FROM water_quality 
+    WHERE recorded_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+    ORDER BY recorded_at ASC
+")->fetchAll();
 ?>
 
 <?php include '../includes/header.php'; ?>
@@ -104,6 +112,12 @@ $water_summary = $db->query("
                 </div>
             </div>
         </div>
+
+        <!-- Water Quality Trend Chart -->
+        <div class="card">
+            <h3>Water Quality Trend (pH)</h3>
+            <canvas id="waterTrend"></canvas>
+        </div>
     </div>
 
     <!-- Export Reports -->
@@ -116,4 +130,44 @@ $water_summary = $db->query("
         </div>
     </div>
 </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('waterTrend').getContext('2d');
+
+// Prepare PHP data for JS
+const labels = <?php echo json_encode(array_map(fn($row) => date('M j', strtotime($row['recorded_at'])), $water_trend)); ?>;
+const dataPoints = <?php echo json_encode(array_map(fn($row) => round($row['ph_level'], 2), $water_trend)); ?>;
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'pH Level',
+            data: dataPoints,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: true }
+        },
+        scales: {
+            y: {
+                beginAtZero: false,
+                title: { display: true, text: 'pH Level' }
+            },
+            x: {
+                title: { display: true, text: 'Date' }
+            }
+        }
+    }
+});
+</script>
 <?php include '../includes/footer.php'; ?>

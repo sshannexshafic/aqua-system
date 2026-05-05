@@ -31,7 +31,18 @@ if ($_POST) {
         try { DatabaseConfig::logActivity(0, 'LOGIN_FAILED', $username . ' - ' . $_SERVER['REMOTE_ADDR']); } catch (Exception $e) {}
     }
 }
+
+// In login.php after successful authentication
+if ($role == 'farmer') {
+    header("Location: farmer/dashboard.php");
+} elseif ($role == 'admin') {
+    header("Location: admin/dashboard.php");
+} elseif ($role == 'vet') {
+    header("Location: vet/dashboard.php");
+}
 ?>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -44,7 +55,7 @@ if ($_POST) {
             <div class="login-header">
                 <img src="../assets/images/logo1.png.png" alt="Logo" class="login-logo">
                 <h2>Welcome Back</h2>
-                <p>Sign in to your dashboard</p>
+                <p>Login if you already have an account.</p>
             </div>
             
             <?php if ($error): ?>

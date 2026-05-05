@@ -1,6 +1,6 @@
 <?php
 /**
- * Mugwe Fish Pond Aquaculture System - Database Configuration
+ *  Aquaculture SManagement ystem - Database Configuration
  * Optimized for Ugandan hosting providers (Hostinger, Truehost, etc.)
  */
 
@@ -18,12 +18,12 @@ class DatabaseConfig {
     public static $MANAGER_PHONE = '+256772123456'; // Mugwe Fish Pond Manager
     
     // === SYSTEM SETTINGS ===
-    public static $SYSTEM_NAME = 'Mugwe Fish Pond AMS';
+    public static $SYSTEM_NAME = 'Aquaculture Management System AMS';
     public static $TIMEZONE = 'Africa/Nairobi';     // EAT (Uganda)
     public static $CURRENCY = 'UGX';
     
     // === SECURITY SETTINGS ===
-    public static $ENCRYPTION_KEY = 'mugwe_fish_pond_2024_key'; // Change this!
+    public static $ENCRYPTION_KEY = 'Aquaculture_management_system_2026'; // Change this!
     
     /**
      * Get PDO Database Connection
@@ -56,7 +56,7 @@ class DatabaseConfig {
     
 
     // Gmail SMTP Settings - UPDATE THESE!
-public static $SMTP_USER = 'yourapp@gmail.com';        // Your Gmail
+public static $SMTP_USER = 'ssewanyanashafic266@gmail.com';        // Your Gmail
 public static $SMTP_PASS = 'abcd efgh ijkl mnop';     // Gmail App Password
     /**
      * Test Database Connection
@@ -86,7 +86,7 @@ public static $SMTP_PASS = 'abcd efgh ijkl mnop';     // Gmail App Password
         $data = [
             'username' => self::$SMS_USERNAME,
             'to' => $phone,
-            'message' => "[Mugwe Fish Pond] $message"
+            'message' => "[Aqua Management System] $message"
         ];
         
         $context = stream_context_create([

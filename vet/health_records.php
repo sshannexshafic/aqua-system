@@ -14,16 +14,55 @@ $message = ''; $error = '';
 if ($_POST && isset($_POST['add_record'])) {
     try {
         $stmt = $db->prepare("
-            INSERT INTO health_records (pond_id, vet_id, visit_date, diagnosis, treatment, medication, severity, follow_up_date, status, notes)
+            INSERT INTO health_records 
+            (pond_id, vet_id, visit_date, diagnosis, treatment, medication, severity, follow_up_date, status, notes)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
+
         $follow_up = !empty($_POST['follow_up_date']) ? $_POST['follow_up_date'] : null;
-        $stmt->execute([
-            $_POST['pond_id'], $vet_id, $_POST['visit_date'],
-            $_POST['diagnosis'], $_POST['treatment'], $_POST['medication'],
-            $_POST['severity'], $follow_up, $_POST['status'], $_POST['notes']
-        ]);
-        $message = 'Health record added successfully!';
+
+        if ($stmt->execute([
+            $_POST['pond_id'], 
+            $vet_id, 
+            $_POST['visit_date'],
+            $_POST['diagnosis'], 
+            $_POST['treatment'], 
+            $_POST['medication'],
+            $_POST['severity'], 
+            $follow_up, 
+            $_POST['status'], 
+            $_POST['notes']
+        ])) {
+
+            // ✅ SMART RECOMMENDATION SYSTEM
+            $recommendations = [];
+
+            // Rule 1: Severity check
+            if ($_POST['severity'] === 'critical') {
+                $recommendations[] = "🚨 Immediate vet action required + isolate pond";
+            }
+
+            // Rule 2: Diagnosis keyword detection
+            if (stripos($_POST['diagnosis'], 'white spot') !== false) {
+                $recommendations[] = "💊 Salt treatment recommended (5–10g/L)";
+            }
+
+            if (stripos($_POST['diagnosis'], 'fungal') !== false) {
+                $recommendations[] = "🧪 Apply antifungal treatment";
+            }
+
+            if (stripos($_POST['diagnosis'], 'bacterial') !== false) {
+                $recommendations[] = "💉 Use appropriate antibiotics";
+            }
+
+            // Combine recommendations
+            if (!empty($recommendations)) {
+                $message = "Health record added! | Recommendations: " . implode(" | ", $recommendations);
+            } else {
+                $message = 'Health record added successfully!';
+            }
+        }
+
     } catch (Exception $e) {
         $error = 'Error saving record: ' . $e->getMessage();
     }
@@ -155,4 +194,12 @@ $records = $db->query("
     </div>
 </div>
 <?php include '../includes/footer.php'; ?>
-PHPEOF
+
+// In health_records.php after saving
+$recommendations = [];
+if ($_POST['severity'] === 'critical') {
+    $recommendations[] = "Immediate vet visit + isolate pond";
+}
+if ($_POST['diagnosis'] contains 'white spot' or similar) {
+    $recommendations[] = "Salt treatment recommended (5-10g/L)";
+}
