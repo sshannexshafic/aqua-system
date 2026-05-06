@@ -1,0 +1,164 @@
+/* Mugwe Fish Pond - Responsive Design for Uganda Mobile Users */
+
+/* Mobile First - Base styles already mobile-friendly */
+
+/* Tablet (768px and up) */
+@media (min-width: 768px) {
+    .admin-page {
+        padding: 1.5rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .page-header h1 {
+        font-size: 2.2rem;
+    }
+}
+
+/* Laptop (1024px and up) */
+@media (min-width: 1024px) {
+    .admin-page {
+        padding: 2.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .form-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .reports-grid {
+        grid-template-columns: 2fr 1fr;
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+    }
+}
+
+/* Desktop (1280px and up) */
+@media (min-width: 1280px) {
+    .admin-page {
+        padding: 3rem;
+    }
+    
+    .card {
+        padding: 3rem;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 1.5rem 2rem;
+    }
+}
+
+/* Large Desktop (1440px and up) */
+@media (min-width: 1440px) {
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+    }
+    
+    .reports-grid {
+        grid-template-columns: 3fr 1fr;
+    }
+}
+
+/* Print Styles */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    
+    .data-table, .data-table * {
+        visibility: visible;
+    }
+    
+    .data-table {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #111827;
+        color: #f9fafb;
+    }
+    
+    .card,
+    .stat-card {
+        background: #1f2937;
+        color: #f9fafb;
+    }
+    
+    .data-table th {
+        background: #374151;
+    }
+    
+    .data-table tr:hover {
+        background: #374151;
+    }
+}
+
+/* Landscape Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .admin-page {
+        padding: 1rem;
+    }
+    
+    .card {
+        padding: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .stat-card,
+    .card {
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+    }
+}
+
+/* Slow Network Optimization */
+@media (connection: slow-2g) {
+    .stat-card img {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .data-table {
+        font-size: 0.875rem;
+    }
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* prevents squishing */
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap; /* keeps text readable */
+}
+
+td {
+    font-size: 14px;
+}

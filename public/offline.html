@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Aquaculture System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .offline-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+        }
+        h1 { font-size: 48px; margin-bottom: 20px; }
+        .icon { font-size: 80px; margin-bottom: 20px; }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover { transform: scale(1.05); }
+        .saved-data {
+            margin-top: 30px;
+            font-size: 14px;
+            text-align: left;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="icon">📡</div>
+        <h1>You're Offline</h1>
+        <p>You are currently not connected to the internet.</p>
+        <p>Don't worry! You can still access previously viewed pages and your saved data.</p>
+        <button onclick="checkConnection()">Check Connection</button>
+        
+        <div class="saved-data">
+            <h3>📋 Available Offline Features:</h3>
+            <ul>
+                <li>✓ View saved farm data</li>
+                <li>✓ Record water quality readings (will sync when online)</li>
+                <li>✓ Log fish health observations</li>
+                <li>✓ View previously loaded pages</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function checkConnection() {
+            if (navigator.onLine) {
+                window.location.href = '/';
+            } else {
+                alert('Still offline. Please check your internet connection.');
+            }
+        }
+        
+        // Listen for online event
+        window.addEventListener('online', function() {
+            alert('You are back online! Redirecting...');
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>
