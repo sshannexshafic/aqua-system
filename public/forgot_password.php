@@ -125,7 +125,7 @@ function sendEmail($to, $username, $token) {
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
         $mail->Username   = 'ssewanyanashafic266@gmail.com';
-        $mail->Password   = 'bpce sfpo bhbf dpbh';
+        $mail->Password   = '1234 1234 1234 1234';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
